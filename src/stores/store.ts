@@ -1,3 +1,4 @@
+import type { Path } from "@/types";
 import type { TableRow } from "@/types";
 import { defineStore } from "pinia";
 
@@ -695,5 +696,18 @@ export const useCustomStore = defineStore({
       ],
     } as CustomStoreState),
   getters: {},
-  actions: {},
+  actions: {
+    delete(index: number, path?: Path[]) {
+      if (!path) {
+        this.users.splice(index, 1);
+      } else {
+        let obj: TableRow[] = this.users;
+
+        for (const point of path)
+          obj = obj[point.index].kids[point.property].records;
+
+        obj.splice(index, 1);
+      }
+    },
+  },
 });

@@ -4,21 +4,25 @@ export default {
 };
 </script>
 <script lang="ts" setup>
-import type { TableRow } from "@/types";
+import { useCustomStore } from "@/stores/store";
+import type { Path, TableRow } from "@/types";
 import { computed, ref } from "vue";
 
 interface IProps {
   data: TableRow[];
   title: string;
   child?: boolean;
+  path?: Path[];
 }
 
 const props = defineProps<IProps>();
+const store = useCustomStore();
 
-const header = computed(() => Object.keys(props.data[0].data));
+const header = computed(() =>
+  props.data.length == 0 ? [] : Object.keys(props.data[0].data)
+);
 
 const hasChildren = (data: TableRow) => {
-  console.log(data);
   for (let el in data.kids) return true;
   return false;
 };
@@ -30,6 +34,10 @@ const childrens = (data: TableRow) => {
 };
 
 const active = ref(0);
+
+function deleteIt(index: number) {
+  store.delete(index, props.path);
+}
 </script>
 
 <template>
@@ -47,10 +55,11 @@ const active = ref(0);
         class="table-header-group font-semibold text-xs border-y border-gray-300 text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
       >
         <tr class="table-row">
-          <td class="table-cell px-6 py-3"></td>
-          <td class="table-cell px-6 py-3" v-for="head in header" :key="head">
+          <th class="table-cell px-6 py-3"></th>
+          <th class="table-cell px-6 py-3" v-for="head in header" :key="head">
             {{ head }}
-          </td>
+          </th>
+          <th class="table-cell px-6 py-3"></th>
         </tr>
       </thead>
       <tbody class="table-row-group">
@@ -85,18 +94,34 @@ const active = ref(0);
             <td class="table-cell px-6 py-3" v-for="head in header" :key="head">
               {{ data.data[head] }}
             </td>
+            <td>
+              <button @click="deleteIt(rowNum)" class="px-2">
+                <svg
+                  class="rotate-45 fill-gray-500"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  height="24"
+                >
+                  <path fill="none" d="M0 0h24v24H0z" />
+                  <path d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2z" />
+                </svg>
+              </button>
+            </td>
           </tr>
-          <tr>
-            <td
-              v-if="hasChildren(data) && active == rowNum + 1"
-              :colspan="header.length + 1"
-            >
+          <tr v-if="hasChildren(data) && active == rowNum + 1">
+            <td :colspan="header.length + 1">
               <TheTable
                 v-for="child in childrens(data)"
                 :data="data.kids[child].records"
                 :key="child"
                 :title="child"
                 :child="true"
+                :path="
+                  props.path
+                    ? [...props.path, { index: rowNum, property: child }]
+                    : [{ index: rowNum, property: child }]
+                "
               />
             </td>
           </tr>
