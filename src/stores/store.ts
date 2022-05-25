@@ -697,16 +697,29 @@ export const useCustomStore = defineStore({
     } as CustomStoreState),
   getters: {},
   actions: {
+    // delete node in tree
     delete(index: number, path?: Path[]) {
-      if (!path) {
+      // check if our tracked path is not empty,
+      // when it is empty we are at the top of the tree
+      if (!path || path.length < 1) {
         this.users.splice(index, 1);
       } else {
-        let obj: TableRow[] = this.users;
+        // path is not empty, so we are inside in the tree
 
-        for (const point of path)
+        let obj: TableRow[] = this.users; // get the root of the tree
+        let lastobj: TableRow = obj[0];
+
+        // travers in the tree according to path to reach to the final destination where the deleted node is
+        for (const point of path) {
+          lastobj = obj[point.index];
           obj = obj[point.index].kids[point.property].records;
+        }
 
-        obj.splice(index, 1);
+        obj.splice(index, 1); // delete the node
+
+        const lastPath = path[path.length - 1]; // the node that we are in now
+        // delete the object property when we have empty array of records
+        if (obj.length == 0 && lastPath) delete lastobj.kids[lastPath.property];
       }
     },
   },
