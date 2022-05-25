@@ -5,11 +5,23 @@ module.exports = {
   root: true,
   extends: [
     "plugin:vue/vue3-essential",
+    "plugin:vue/vue3-recommended",
     "eslint:recommended",
     "@vue/eslint-config-typescript/recommended",
     "@vue/eslint-config-prettier",
   ],
   env: {
     "vue/setup-compiler-macros": true,
+  },
+  overrides: [
+    {
+      files: ["*.config.{js,ts}"],
+      env: {
+        node: true,
+      },
+    },
+  ],
+  rules: {
+    "vue/script-setup-uses-vars": "error",
   },
 };

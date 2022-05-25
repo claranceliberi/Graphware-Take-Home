@@ -60,7 +60,7 @@ function deleteIt(index: number) {
       >
         <tr class="table-row">
           <th class="table-cell px-6 py-3"></th>
-          <th class="table-cell px-6 py-3" v-for="head in header" :key="head">
+          <th v-for="head in header" :key="head" class="table-cell px-6 py-3">
             {{ head }}
           </th>
           <th class="table-cell px-6 py-3"></th>
@@ -69,8 +69,8 @@ function deleteIt(index: number) {
       <tbody class="table-row-group">
         <!-- loop in data that that was passed in component -->
         <template
-          v-for="(data, rowNum) in props.data"
-          :key="data.data[header[0]]"
+          v-for="(node, rowNum) in props.data"
+          :key="node.data[header[0]]"
         >
           <tr
             class="table-row bg-white border-b dark:bg-gray-800 dark:border-gray-700"
@@ -78,8 +78,8 @@ function deleteIt(index: number) {
             <td class="table-cell px-6 py-3">
               <!-- button to show kids that when they are available -->
               <button
+                v-if="hasChildren(node)"
                 type="reset"
-                v-if="hasChildren(data)"
                 @click="
                   active == rowNum + 1 ? (active = 0) : (active = rowNum + 1)
                 "
@@ -97,12 +97,12 @@ function deleteIt(index: number) {
                 </svg>
               </button>
             </td>
-            <td class="table-cell px-6 py-3" v-for="head in header" :key="head">
-              {{ data.data[head] }}
+            <td v-for="head in header" :key="head" class="table-cell px-6 py-3">
+              {{ node.data[head] }}
             </td>
             <td>
               <!-- button to delete data -->
-              <button @click="deleteIt(rowNum)" class="px-2">
+              <button class="px-2" @click="deleteIt(rowNum)">
                 <svg
                   class="rotate-45 fill-gray-500"
                   xmlns="http://www.w3.org/2000/svg"
@@ -117,18 +117,18 @@ function deleteIt(index: number) {
             </td>
           </tr>
           <!-- when current node has children we render this component to show children data -->
-          <tr v-if="hasChildren(data) && active == rowNum + 1">
+          <tr v-if="hasChildren(node) && active == rowNum + 1">
             <td :colspan="header.length + 1">
               <TheTable
-                v-for="child in childrens(data)"
-                :data="data.kids[child].records"
-                :key="child"
-                :title="child"
+                v-for="(childNode, childIndex) in childrens(node)"
+                :key="childIndex"
+                :data="node.kids[childNode].records"
+                :title="childNode"
                 :child="true"
                 :path="
                   props.path
-                    ? [...props.path, { index: rowNum, property: child }]
-                    : [{ index: rowNum, property: child }]
+                    ? [...props.path, { index: rowNum, property: childNode }]
+                    : [{ index: rowNum, property: childNode }]
                 "
               />
             </td>
