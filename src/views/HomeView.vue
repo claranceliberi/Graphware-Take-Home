@@ -1,9 +1,13 @@
 <script setup lang="ts">
-import TheWelcome from '@/components/TheWelcome.vue'
+import TheTable from "@/components/TheTable.vue";
+
+import { useCustomStore } from "@/stores/store";
+
+const store = useCustomStore();
 </script>
 
 <template>
   <main>
-    <TheWelcome />
+    <TheTable :data="store.users" title="Users" />
   </main>
 </template>
