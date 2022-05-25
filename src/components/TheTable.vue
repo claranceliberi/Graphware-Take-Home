@@ -18,15 +18,18 @@ interface IProps {
 const props = defineProps<IProps>();
 const store = useCustomStore();
 
+// titles which are used in table header
 const header = computed(() =>
   props.data.length == 0 ? [] : Object.keys(props.data[0].data)
 );
 
+//check whether the node has children
 const hasChildren = (data: TableRow) => {
   for (let el in data.kids) return true;
   return false;
 };
 
+// childrens which are in node
 const childrens = (data: TableRow) => {
   if (!hasChildren(data)) return [];
 
@@ -36,6 +39,7 @@ const childrens = (data: TableRow) => {
 const active = ref(0);
 
 function deleteIt(index: number) {
+  active.value = 0;
   store.delete(index, props.path);
 }
 </script>
@@ -63,6 +67,7 @@ function deleteIt(index: number) {
         </tr>
       </thead>
       <tbody class="table-row-group">
+        <!-- loop in data that that was passed in component -->
         <template
           v-for="(data, rowNum) in props.data"
           :key="data.data[header[0]]"
@@ -71,6 +76,7 @@ function deleteIt(index: number) {
             class="table-row bg-white border-b dark:bg-gray-800 dark:border-gray-700"
           >
             <td class="table-cell px-6 py-3">
+              <!-- button to show kids that when they are available -->
               <button
                 type="reset"
                 v-if="hasChildren(data)"
@@ -95,6 +101,7 @@ function deleteIt(index: number) {
               {{ data.data[head] }}
             </td>
             <td>
+              <!-- button to delete data -->
               <button @click="deleteIt(rowNum)" class="px-2">
                 <svg
                   class="rotate-45 fill-gray-500"
@@ -109,6 +116,7 @@ function deleteIt(index: number) {
               </button>
             </td>
           </tr>
+          <!-- when current node has children we render this component to show children data -->
           <tr v-if="hasChildren(data) && active == rowNum + 1">
             <td :colspan="header.length + 1">
               <TheTable
