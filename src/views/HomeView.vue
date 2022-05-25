@@ -8,6 +8,11 @@ const store = useCustomStore();
 
 <template>
   <main>
-    <TheTable :data="store.users" title="Users" />
+    <div v-if="store.users.data">
+      <TheTable :data="store.users.data" title="Users" />
+    </div>
+    <div v-else>
+      <p class="mt-20 ml-5">There is no more data to show...</p>
+    </div>
   </main>
 </template>
